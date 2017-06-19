@@ -23,14 +23,6 @@
 #
 # You give me:
 # A list of words in the dictionary that map to that 7 digit number
-#
-# 0000000 <-----
-# 0000001
-# 0000002
-# 0000010
-# 0000011
-# 0000012
-# ...
 
 from collections import namedtuple
 
