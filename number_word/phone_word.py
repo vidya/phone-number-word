@@ -36,7 +36,8 @@ class PhoneWord(object):
         if not len(str(number)) == 7:
             raise ValueError('num does not have 7 digits')
 
-        self.digit_list = [int(ch) for ch in str(number)]
+        self.digit_list = [int(ch)
+                           for ch in str(number)]
 
         self.digit_map = (
             (),                     (),                         ('a', 'b', 'c'),
@@ -48,9 +49,12 @@ class PhoneWord(object):
 
         self.position_dict = self.build_position_dict()
 
-        self.max_let_index = [len(self.position_dict[pos].letters) - 1 for pos in range(7)]
+        self.max_let_index = [len(self.position_dict[pos].letters) - 1
+                              for pos in range(7)]
 
-        self.word_dict_set = self.read_dictionary()
+        self.word_dict_set = {word.lower()
+                                for line in self.seven_letter_words()
+                                for word in line.split()}
 
     def build_position_dict(self):
         position_dict = {}
@@ -63,14 +67,9 @@ class PhoneWord(object):
 
         return position_dict
 
-    def read_dictionary(self):
-        dict_set = set()
-
+    def seven_letter_words(self):
         with open("dictionary.txt") as f:
-            line = f.read()
-            dict_set |= set(map(lambda x: x.lower(), line.split()))
-
-        return dict_set
+            yield f.read()
 
     def reset_tail(self, index_list, tail_start_pos):
         for pos in range(tail_start_pos, 7):
@@ -103,8 +102,9 @@ class PhoneWord(object):
     def get_letter(self, pos, let_ind):
         return self.position_dict[pos].letters[let_ind]
 
-    def word_from_index_list(self, index_list):
-        ch_list = [self.get_letter(pos, let_ind) for pos, let_ind in enumerate(index_list)]
+    def index_list_word(self, index_list):
+        ch_list = [self.get_letter(pos, let_ind)
+                   for pos, let_ind in enumerate(index_list)]
 
         word = ''.join(ch_list)
 
@@ -114,6 +114,8 @@ class PhoneWord(object):
         if 0 in self.digit_list or 1 in self.digit_list:
             return []
 
-        word_set = set([self.word_from_index_list(ilist) for ilist in self.index_lists()])
-
-        return list(word_set & self.word_dict_set)
+        word_set = set([self.index_list_word(lst)
+                        for lst in self.index_lists()
+                        if self.index_list_word(lst) in self.word_dict_set
+                        ])
+        return word_set
