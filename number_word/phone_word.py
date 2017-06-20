@@ -26,7 +26,7 @@
 
 from collections import namedtuple
 
-PositionInfo = namedtuple('PositionInfo', ['digit', 'letters'])
+PositionDetails = namedtuple('PositionDetails', ['digit', 'letters'])
 
 class PhoneWord(object):
     def __init__(self, number):
@@ -47,25 +47,22 @@ class PhoneWord(object):
             ('w', 'x', 'y', 'z')
         )
 
-        self.position_dict = self.build_position_dict()
+        self.position_info = {pos: details
+                              for pos, details in self.position_details()}
 
-        self.max_let_index = [len(self.position_dict[pos].letters) - 1
+        self.max_let_index = [len(self.position_info[pos].letters) - 1
                               for pos in range(7)]
 
         self.word_dict_set = {word.lower()
-                                for line in self.seven_letter_words()
-                                for word in line.split()}
+                              for line in self.seven_letter_words()
+                              for word in line.split()}
 
-    def build_position_dict(self):
-        position_dict = {}
-
+    def position_details(self):
         for pos in range(7):
             digit = self.digit_list[pos]
             letters = self.digit_map[digit]
 
-            position_dict[pos] = PositionInfo(digit, letters)
-
-        return position_dict
+            yield pos, PositionDetails(digit, letters)
 
     def seven_letter_words(self):
         with open("dictionary.txt") as f:
@@ -100,7 +97,7 @@ class PhoneWord(object):
                     break
 
     def get_letter(self, pos, let_ind):
-        return self.position_dict[pos].letters[let_ind]
+        return self.position_info[pos].letters[let_ind]
 
     def index_list_word(self, index_list):
         ch_list = [self.get_letter(pos, let_ind)
